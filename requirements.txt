@@ -1,3 +1,5 @@
 zappa
 boto3
 flask
+pillow
+slackclient

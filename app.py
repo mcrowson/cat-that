@@ -1,11 +1,13 @@
-import os
-from flask import Flask, request, redirect, url_for
-from werkzeug.utils import secure_filename
+from flask import Flask, request, redirect, render_template, send_file
 import boto3
 import uuid
 import imghdr
-import io
-import random
+import os
+from cat import CatThat
+import requests
+from slackclient import SlackClient
+from cStringIO import StringIO
+from PIL import Image
 
 
 FINISHED_FOLDER = 'finished'
@@ -14,113 +16,111 @@ S3_BUCKET = 'cats.databeard.com'
 ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif']
 app = Flask(__name__)
 
+#client_id = os.environ["SLACK_CLIENT_ID"]
+#client_secret = os.environ["SLACK_CLIENT_SECRET"]
+#oauth_scope = os.environ["SLACK_BOT_SCOPE"]
 
 
-def add_cat_face(file_obj):
-    """
-    Takes a file-like object and puts a cat on any faces it finds.
-    :param file_obj:
-    :return:
-    """
-    rek = boto3.client('rekognition')
-    s3 = boto3.client('s3')
-
-    image_bytes = io.open(file_obj, mode='rb')
-    rek_results = rek.detect_faces(
-        Image={
-            'Bytes': image_bytes,
-        },
-        Attributes=['DEFAULT']
-    )
-
-    if 'FaceDetails' not in rek_results:
-        return None
-
-    cat_pic = s3.download_fileobj(
-
-    for face in rek_results['FaceDetails']:
-        cat_selection = 'stock-faces/naked.jpg'
-
-
-    d = {u'FaceDetails': [{u'BoundingBox': {u'Width': 0.24111111462116241, u'Top': 0.22019867599010468,
-                                        u'Left': 0.4744444489479065, u'Height': 0.36092716455459595},
-                       u'Landmarks': [{u'Y': 0.36806583404541016, u'X': 0.5450013279914856, u'Type': u'eyeLeft'},
-                                      {u'Y': 0.35954901576042175, u'X': 0.6310957074165344, u'Type': u'eyeRight'},
-                                      {u'Y': 0.41670846939086914, u'X': 0.5760032534599304, u'Type': u'nose'},
-                                      {u'Y': 0.49715277552604675, u'X': 0.5669674277305603, u'Type': u'mouthLeft'},
-                                      {u'Y': 0.4923478662967682, u'X': 0.6200326681137085, u'Type': u'mouthRight'}],
-                       u'Pose': {u'Yaw': -13.072640419006348, u'Roll': -3.556159257888794, u'Pitch': 9.266134262084961},
-                       u'Quality': {u'Sharpness': 100.0, u'Brightness': 41.504791259765625},
-                       u'Confidence': 99.99169921875}], 'ResponseMetadata': {'RetryAttempts': 0, 'HTTPStatusCode': 200,
-                                                                             'RequestId': '421cc588-bdb9-11e6-ad93-3d0b4491c4f9',
-                                                                             'HTTPHeaders': {
-                                                                                 'date': 'Fri, 09 Dec 2016 02:43:26 GMT',
-                                                                                 'x-amzn-requestid': '421cc588-bdb9-11e6-ad93-3d0b4491c4f9',
-                                                                                 'content-length': '702',
-                                                                                 'content-type': 'application/x-amz-json-1.1',
-                                                                                 'connection': 'keep-alive'}},
-     u'OrientationCorrection': u'ROTATE_0'}
-
-
-    return file_obj
-
-
-def get_available_cat_pictures():
-    # TODO possibly just keep a list here and keep it in sync with s3 names
-    s3 = boto3.client('s3')
-    prefix = '{0!s}/'.format(INPUT_KITTIES)
-    cat_pics = s3.list_objects_v2(Bucket=S3_BUCKET, Prefix=prefix)
-    if 'Contents' not in cat_pics:
-        return None
-
-    cat_keys = []
-    for im in cat_pics['Contents']:
-        if im['Key'] == prefix:
-            continue
-        cat_keys.append(im['Key'])
-
-    return cat_keys
+def valid_image_file_odl(file_obj):
+    res = imghdr.what('ignored.txt', h=file_obj.read())
+    return res in ALLOWED_EXTENSIONS
 
 
 def valid_image_file(file_obj):
-    if type(file_obj) is file:
-        res = imghdr.what('ignored.txt', h=file_obj.read())
-        return res in ALLOWED_EXTENSIONS
+    return '.' in file_obj.filename and \
+           file_obj.filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
 def upload_to_s3(file_obj, folder):
     s3 = boto3.client('s3')
-    picture_name = '{0!s}/{0!s}.jpg'.format(folder, uuid.uuid4())
-    s3.upload_fileobj(file_obj, S3_BUCKET, picture_name)
-    return picture_name)
+    picture_name = '{0!s}/{1!s}.jpg'.format(folder, uuid.uuid4())
+    s3.upload_fileobj(file_obj, S3_BUCKET, picture_name, ExtraArgs={'ContentType': 'image/jpeg'})
+    s3_url = 'https://s3.amazonaws.com/cats.databeard.com/{0!s}'.format(picture_name)
+    return s3_url
 
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_picture(event=None, context=None):
     if request.method == 'POST':
-        # check if the post request has the file part
-        if 'file' not in request.files:
-            return redirect(request.url)
-        file_obj = request.files['file']
+        picture_url = request.form.get('url')
+        if picture_url:
+            # Download the pic into tmp
+            r = requests.get(picture_url, stream=True)
+            if r.status_code != 200:
+                print("did not get 200 response code when downloading")
+                return redirect(request.url)
+
+            file_obj = StringIO(r.content)
+        elif 'file' in request.files:
+            print('got a file upload')
+            print(request.files['file'].filename)
+            file_obj = request.files['file']
+        else:
+            print("did not get posted file or url in the POSt variables")
+            return 'https://catthat.databeard.com/'
 
         if not valid_image_file(file_obj):
-            return redirect(request.url)
+            print "This is not a valid image file"
+            return 'https://catthat.databeard.com/'
 
-        cat_faced = add_cat_face(file_obj=file_obj)
+        cat_that = CatThat()
+        smaller_file = cat_that.resize_input_image(file_obj=file_obj)
+        cat_faced = cat_that.add_cat_face(file_obj=smaller_file)
+        if not cat_faced:
+            print "couldn't put cats on this face"
+            return 'https://catthat.databeard.com/'
+
         cat_path = upload_to_s3(file_obj=cat_faced, folder=FINISHED_FOLDER)
-        cat_url = 'http://{0!s}/{1!s}'.format(S3_BUCKET, cat_path)
+        print('returning {}'.format(cat_path))
+        return cat_path
 
-        return redirect(location=cat_url)
+    return render_template('dropzone.html')
 
+
+@app.route('/slack', methods=['POST', 'GET'])
+def slack_receiver(event=None, context=None):
+    sc = SlackClient()
+
+    sc.api_call(
+        "chat.postMessage",
+        channel="#python",
+        text="Hello from Python! :tada:"
+    )
+    return "Got here"
+
+
+@app.route("/slack/begin_auth", methods=["GET"])
+def pre_install(event=None, context=None):
     return '''
-           <!doctype html>
-           <title>Upload new File</title>
-           <h1>Upload new File</h1>
-           <form action="" method=post enctype=multipart/form-data>
-             <p><input type=file name=file>
-                <input type=submit value=Upload>
-           </form>
-           '''
+      <a href="https://slack.com/oauth/authorize?scope={0}&client_id={1}">
+          Add to Slack
+      </a>
+    '''.format(oauth_scope, client_id)
+
+
+@app.route("/slack/finish_auth", methods=["GET", "POST"])
+def post_install(event=None, context=None):
+
+    # Retrieve the auth code from the request params
+    auth_code = request.args['code']
+
+    # An empty string is a valid token for this request
+    sc = SlackClient("")
+
+    # Request the auth tokens from Slack
+    auth_response = sc.api_call(
+        "oauth.access",
+        client_id=client_id,
+        client_secret=client_secret,
+        code=auth_code
+    )
+    # Save the bot token to an environmental variable or to your data store
+    # for later use
+    os.environ["SLACK_USER_TOKEN"] = auth_response['user_access_token']
+    os.environ["SLACK_BOT_TOKEN"] = auth_response['bot']['bot_access_token']
+
+    # Don't forget to let the user know that auth has succeeded!
+    return "Auth complete!"
 
 
 if __name__ == "__main__":

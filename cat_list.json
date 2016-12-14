@@ -1,0 +1,10 @@
+[
+  {
+    "image_path": "static/cat_pictures/cat_face1.png",
+    "ear_pct_inc": "0.3161290323"
+  },
+  {
+    "image_path": "static/cat_pictures/cat_face2.png",
+    "ear_pct_inc": "0.430218068535826"
+  }
+]

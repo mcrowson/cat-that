@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta charset="utf-8">
+
+    <title>Cat That Picture</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/dropzone.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/dropzone.css">
+</head>
+<body>
+    <section>
+
+      <h1 id="try-it-out">Upload a picture with faces. We'll add cats.</h1>
+        <form action="/" class="dropzone" id="drop-files"></form>
+
+    </section>
+    <script>
+        Dropzone.options.dropFiles = {
+            maxFilesize: 2,
+            maxFiles: 1,
+            acceptedFiles: "image/*",
+            success: function(file, response){
+                window.location = response.toString();
+            }
+        };
+    </script>
+</body>
+</html>
+
+
