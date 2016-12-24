@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template, send_file, url_for, flash
+from flask import Flask, request, redirect, render_template, send_file, url_for, flash, jsonify
 import boto3
 import uuid
 import imghdr
@@ -11,7 +11,6 @@ from flask_s3 import FlaskS3
 
 
 FINISHED_FOLDER = 'finished'
-INPUT_KITTIES = 'stock-faces'
 S3_BUCKET = 'cats.databeard.com'
 ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif']
 
@@ -19,6 +18,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY')
 app.config['FLASKS3_BUCKET_NAME'] = S3_BUCKET
 app.config['FLASKS3_URL_STYLE'] = 'path'
+app.config['FLASKS3_ACTIVE'] = False
 s3 = FlaskS3(app)
 
 #client_id = os.environ["SLACK_CLIENT_ID"]
@@ -49,6 +49,7 @@ def upload_picture(event=None, context=None):
     if request.method == 'POST':
         picture_url = request.form.get('url')
         if picture_url:
+
             # Download the pic into tmp
             r = requests.get(picture_url, stream=True)
             if r.status_code != 200:
@@ -56,12 +57,15 @@ def upload_picture(event=None, context=None):
                 return url_for('/')
 
             file_obj = StringIO(r.content)
+            result = 'redirect'
 
         elif 'file' in request.files:
             file_obj = request.files['file']
             if not valid_image_file(file_obj):
                 flash("This is not a valid image file")
                 return url_for('/')
+
+            result = 'json'
         else:
             flash("We did not get posted file or url in the POSt variables")
             return url_for('/')
@@ -75,7 +79,11 @@ def upload_picture(event=None, context=None):
 
         cat_path = upload_to_s3(file_obj=cat_faced, folder=FINISHED_FOLDER)
         print('Cat Image URL: {}'.format(cat_path))
-        return redirect(cat_path)
+
+        if result == 'redirect':
+            return redirect(cat_path)
+        else:
+            return jsonify({'success': True, 'url': cat_path})
 
     return render_template('index.html')
 

@@ -81,11 +81,13 @@
                 {% block body %}{% endblock %}
 
                 <p>If the image is already online, throw the url in here:</p>
-                <form method="post" action="/">
+                <form method="post">
                     <input type="url" name="url">
-                    <input type="submit" value="Cat That!">
+                    <input type="submit" value="Cat That!" onclick="showLoader()">
                 </form>
-                <div class="dropzone-previews" id="preview"></div>
+                <br/>
+                <p>We only retain images for three days. Make sure you download any images worth saving.</p>
+                <div id="catloader"><p>....LOADING!</p></div>
             </div>
         </div>
         <!-- /.row -->
@@ -106,13 +108,20 @@
             url: "/",
             maxFilesize: 2,
             maxFiles: 1,
-            clickable: "#container",
-            previewsContainer: "#preview",
             acceptedFiles: "image/*",
             success: function(file, response){
-                window.location = response.toString();
+                window.location =response.url
+            },
+            init: function() {
+                this.on("addedfile", function() {
+                    $("#cat-loader").show()
+                });
             }
         });
+
+        function showLoader() {
+            $("cat-loader").show()
+        }
     </script>
 
     <!-- Because Analytics -->
