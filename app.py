@@ -14,6 +14,7 @@ FINISHED_FOLDER = 'finished'
 INPUT_KITTIES = 'stock-faces'
 S3_BUCKET = 'cats.databeard.com'
 ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif']
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY')
 app.config['FLASKS3_BUCKET_NAME'] = S3_BUCKET
@@ -73,7 +74,7 @@ def upload_picture(event=None, context=None):
             return url_for('/')
 
         cat_path = upload_to_s3(file_obj=cat_faced, folder=FINISHED_FOLDER)
-        print('returning {}'.format(cat_path))
+        print('Cat Image URL: {}'.format(cat_path))
         return redirect(cat_path)
 
     return render_template('index.html')

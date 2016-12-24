@@ -1,8 +1,3 @@
-/*!
- * Start Bootstrap - The Big Picture (http://startbootstrap.com/)
- * Copyright 2013-2016 Start Bootstrap
- * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap/blob/gh-pages/LICENSE)
- */
 html, body {
     min-height: 100%;
 }
@@ -33,14 +28,7 @@ p {
     border: none;
 }
 
-.navbar-brand{
-    color: #FFFFFF;
-}
-
-.container {
-    min-height: 100%;
-}
-
-.flashes {
+.flashes > li {
     background-color: #99ccff;
+    margin: 5px;
 }
