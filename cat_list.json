@@ -6,5 +6,33 @@
   {
     "image_path": "static/cat_pictures/cat_face2.png",
     "ear_pct_inc": "0.430218068535826"
-  }
+  },
+  {
+    "image_path": "static/cat_pictures/cat_face3.png",
+    "ear_pct_inc": "0.17"
+  },
+  {
+    "image_path": "static/cat_pictures/cat_face4.png",
+    "ear_pct_inc": "0.347142857142857"
+  },
+  {
+    "image_path": "static/cat_pictures/cat_face5.png",
+    "ear_pct_inc": "0.165829145728643"
+  },
+  {
+    "image_path": "static/cat_pictures/cat_face6.png",
+    "ear_pct_inc": "0.27154046997389"
+  },
+  {
+    "image_path": "static/cat_pictures/cat_face7.png",
+    "ear_pct_inc": "0.43359375"
+  },
+  {
+    "image_path": "static/cat_pictures/cat_face8.png",
+    "ear_pct_inc": "0.465373961218837"
+  },
+  {
+    "image_path": "static/cat_pictures/cat_face9.png",
+    "ear_pct_inc": "0.373665480427046"
+  },
 ]
