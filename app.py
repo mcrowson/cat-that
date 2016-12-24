@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template, send_file
+from flask import Flask, request, redirect, render_template, send_file, url_for, flash
 import boto3
 import uuid
 import imghdr
@@ -7,7 +7,7 @@ from cat import CatThat
 import requests
 from slackclient import SlackClient
 from cStringIO import StringIO
-from PIL import Image
+from flask_s3 import FlaskS3
 
 
 FINISHED_FOLDER = 'finished'
@@ -15,6 +15,10 @@ INPUT_KITTIES = 'stock-faces'
 S3_BUCKET = 'cats.databeard.com'
 ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif']
 app = Flask(__name__)
+app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY')
+app.config['FLASKS3_BUCKET_NAME'] = S3_BUCKET
+app.config['FLASKS3_URL_STYLE'] = 'path'
+s3 = FlaskS3(app)
 
 #client_id = os.environ["SLACK_CLIENT_ID"]
 #client_secret = os.environ["SLACK_CLIENT_SECRET"]
@@ -35,7 +39,7 @@ def upload_to_s3(file_obj, folder):
     s3 = boto3.client('s3')
     picture_name = '{0!s}/{1!s}.jpg'.format(folder, uuid.uuid4())
     s3.upload_fileobj(file_obj, S3_BUCKET, picture_name, ExtraArgs={'ContentType': 'image/jpeg'})
-    s3_url = 'https://s3.amazonaws.com/cats.databeard.com/{0!s}'.format(picture_name)
+    s3_url = 'https://s3.amazonaws.com/{0!s}/{1!s}'.format(S3_BUCKET, picture_name)
     return s3_url
 
 
@@ -47,34 +51,32 @@ def upload_picture(event=None, context=None):
             # Download the pic into tmp
             r = requests.get(picture_url, stream=True)
             if r.status_code != 200:
-                print("did not get 200 response code when downloading")
-                return redirect(request.url)
+                flash("We did not get 200 response code when downloading the image")
+                return url_for('/')
 
             file_obj = StringIO(r.content)
-        elif 'file' in request.files:
-            print('got a file upload')
-            print(request.files['file'].filename)
-            file_obj = request.files['file']
-        else:
-            print("did not get posted file or url in the POSt variables")
-            return 'https://catthat.databeard.com/'
 
-        if not valid_image_file(file_obj):
-            print "This is not a valid image file"
-            return 'https://catthat.databeard.com/'
+        elif 'file' in request.files:
+            file_obj = request.files['file']
+            if not valid_image_file(file_obj):
+                flash("This is not a valid image file")
+                return url_for('/')
+        else:
+            flash("We did not get posted file or url in the POSt variables")
+            return url_for('/')
 
         cat_that = CatThat()
         smaller_file = cat_that.resize_input_image(file_obj=file_obj)
         cat_faced = cat_that.add_cat_face(file_obj=smaller_file)
         if not cat_faced:
-            print "couldn't put cats on this face"
-            return 'https://catthat.databeard.com/'
+            flash("couldn't put cats on this face, sorry.")
+            return url_for('/')
 
         cat_path = upload_to_s3(file_obj=cat_faced, folder=FINISHED_FOLDER)
         print('returning {}'.format(cat_path))
-        return cat_path
+        return redirect(cat_path)
 
-    return render_template('dropzone.html')
+    return render_template('index.html')
 
 
 @app.route('/slack', methods=['POST', 'GET'])

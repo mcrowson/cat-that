@@ -5,6 +5,7 @@ from PIL import Image
 import random
 from botocore.exceptions import ClientError
 
+
 class CatThat(object):
 
     @staticmethod
@@ -35,8 +36,6 @@ class CatThat(object):
         rek = boto3.client('rekognition')
 
         file_obj.seek(0)
-        #print file_obj.read()
-        #return None
         try:
             rek_results = rek.detect_faces(
                 Image={

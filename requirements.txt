@@ -3,3 +3,4 @@ boto3
 flask
 pillow
 slackclient
+flask-s3
