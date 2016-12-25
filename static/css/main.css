@@ -28,13 +28,12 @@ p {
     border: none;
 }
 
-.flashes > li {
-    background-color: #99ccff;
-    margin: 5px;
-}
-
 div.noshow {
     display: none;
+}
+
+#top {
+    margin: 15px;
 }
 
 #loader {

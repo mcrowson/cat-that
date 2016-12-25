@@ -45,7 +45,12 @@ def upload_to_s3(file_obj, folder):
 
 
 @app.route('/', methods=['GET', 'POST'])
-def upload_picture(event=None, context=None):
+def index(event=None, context=None):
+    return render_template('index.html')
+
+
+@app.route('/finished', methods=['GET', 'POST'])
+def process(event=None, context=None):
     if request.method == 'POST':
         picture_url = request.form.get('url')
         if picture_url:
@@ -54,7 +59,7 @@ def upload_picture(event=None, context=None):
             r = requests.get(picture_url, stream=True)
             if r.status_code != 200:
                 flash("We did not get 200 response code when downloading the image")
-                return url_for('/')
+                return url_for('index')
 
             file_obj = StringIO(r.content)
             result = 'redirect'
@@ -63,30 +68,30 @@ def upload_picture(event=None, context=None):
             file_obj = request.files['file']
             if not valid_image_file(file_obj):
                 flash("This is not a valid image file")
-                return url_for('/')
+                return url_for('index')
 
             result = 'json'
         else:
             flash("We did not get posted file or url in the POSt variables")
-            return url_for('/')
+            return url_for('index')
 
         cat_that = CatThat()
         smaller_file = cat_that.resize_input_image(file_obj=file_obj)
         cat_faced = cat_that.add_cat_face(file_obj=smaller_file)
         if not cat_faced:
             flash("couldn't put cats on this face, sorry.")
-            return url_for('/')
+            return url_for('index')
 
         cat_path = upload_to_s3(file_obj=cat_faced, folder=FINISHED_FOLDER)
         print('Cat Image URL: {}'.format(cat_path))
 
         if result == 'redirect':
-            return redirect(cat_path)
+            return render_template('finished.html', data={'url': cat_path})
         else:
             return jsonify({'success': True, 'url': cat_path})
-
-    return render_template('index.html')
-
+    r = request
+    cat_path = request.args.get('url')
+    return render_template('finished.html', data={'url': cat_path})
 
 @app.route('/slack', methods=['POST', 'GET'])
 def slack_receiver(event=None, context=None):

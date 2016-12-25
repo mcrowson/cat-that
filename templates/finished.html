@@ -13,10 +13,6 @@
     <!-- Bootstrap Core CSS -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Dropzone -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/dropzone.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/4.3.0/dropzone.js"></script>
-
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -64,33 +60,19 @@
     <!-- Page Content -->
     <div class="container">
         <div class="row">
-            <div class="col-md-6 col-sm-12" id="clickable">
-                <h1>Cat That</h1>
-                <p>Your picture doesn't have enough cats in it. Click here or drag and drop a picture; we'll find the faces and put cats on them fore you. Picture improved.</p>
-                <br/>
-                <!-- Flashed messages -->
-                {% with messages = get_flashed_messages() %}
-                  {% if messages %}
-                    <ul class="bg-info">
-                    {% for message in messages %}
-                      <li>{{ message }}</li>
-                    {% endfor %}
-                    </ul>
-                  {% endif %}
-                {% endwith %}
-                {% block body %}{% endblock %}
+            <!-- Show the picture -->
+            <div class="col-lg-12">
+                <img src="{{ data.url }}" style="max-width: 100%; max-height: 100%"/>
+            </div>
+        </div>
+        <!-- /.row -->
 
-                <p>If the image is already online, throw the url in here:</p>
-                <form method="post" action="/finished">
-                    <input type="url" name="url">
-                    <input type="submit" value="Cat That!" onclick="showLoader()">
-                </form>
-                <br/>
-                <p>We only retain images for three days. Make sure you download any images worth saving.</p>
-
-                <!-- Don't show the previe of the pictures, a spinning cat head will do instead -->
-                <div id="nothing" class="noshow">asdf</div>
-                <div id="loader" class="noshow"><p>....LOADING!</p></div>
+        <div class="row">
+            <div class="col-lg-6">
+                <a href="{{ data.url }}" download="catthat.jpg" class="btn-default btn-lg pull-left">Download</a>
+            </div>
+            <div class="col-lg-6">
+                <a href="{{ url_for('index') }}" class="btn-default btn-lg pull-right">Cat Another</a>
             </div>
         </div>
         <!-- /.row -->
@@ -104,28 +86,6 @@
       crossorigin="anonymous"></script>
     <!-- Bootstrap Core JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-
-    <!-- Dropzone for drag and drop image uploading -->
-    <script>
-        new Dropzone(document.body, {
-            url: "{{ url_for('process') }}",
-            maxFilesize: 2,
-            maxFiles: 1,
-            previewsContainer: "#nothing",
-            acceptedFiles: "image/*",
-            success: function(file, response){
-                window.location="{{ url_for('process') }}?url=" + response.url;
-            },
-            processing: function(){
-                showLoader();
-            }
-        });
-
-        function showLoader() {
-            $("#loader").show()
-        }
-
-    </script>
 
     <!-- Because Analytics -->
     <script>
