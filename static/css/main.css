@@ -33,7 +33,11 @@ p {
     margin: 5px;
 }
 
-#catloader {
+div.noshow {
+    display: none;
+}
+
+#loader {
     margin: 20px;
     width: 100px;
     height: 100px;

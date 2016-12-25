@@ -87,7 +87,10 @@
                 </form>
                 <br/>
                 <p>We only retain images for three days. Make sure you download any images worth saving.</p>
-                <div id="catloader"><p>....LOADING!</p></div>
+
+                <!-- Don't show the previe of the pictures, a spinning cat head will do instead -->
+                <div id="nothing" style="display: none;">asdf</div>
+                <div id="loader" style="display: none;"><p>....LOADING!</p></div>
             </div>
         </div>
         <!-- /.row -->
@@ -108,20 +111,20 @@
             url: "/",
             maxFilesize: 2,
             maxFiles: 1,
+            previewsContainer: "#nothing",
             acceptedFiles: "image/*",
             success: function(file, response){
-                window.location =response.url
+                window.location=response.url;
             },
-            init: function() {
-                this.on("addedfile", function() {
-                    $("#cat-loader").show()
-                });
+            processing: function(){
+                showLoader();
             }
         });
 
         function showLoader() {
-            $("cat-loader").show()
+            $("#loader").show()
         }
+
     </script>
 
     <!-- Because Analytics -->
