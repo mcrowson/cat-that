@@ -37,8 +37,10 @@
         <div class="col-md-6 col-sm-12">
             <p>If the image is already online, throw the url in here:</p>
             <form method="post" action="/finished" id="url_form">
-                <input type="url" name="url">
-                <input type="submit" value="Cat That!" class="btn btn-default" onclick="showLoader()">
+                <div class="form-group">
+                    <input type="url" name="url" class="input-default">
+                    <input type="submit" value="Cat That!" class="btn btn-default" onclick="showLoader()">
+                </div>
             </form>
         </div>
     </div>

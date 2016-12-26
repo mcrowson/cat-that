@@ -14,8 +14,6 @@ p {
 .content {
     position: fixed;
     height: calc(100% - 60px);
-    left: 50px;
-    right: 50px;
 }
 
 .result-display {
