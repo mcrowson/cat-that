@@ -28,11 +28,6 @@ p {
     background-position: center center;
 }
 
-.dropzone {
-    background: none;
-    border: none;
-}
-
 .noshow {
     display: none;
 }

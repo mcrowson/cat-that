@@ -74,7 +74,7 @@ def process(event=None, context=None):
         cat_that = CatThat()
         cat_faced = cat_that.add_cat_face(file_obj=file_obj)
         if not cat_faced:
-            flash("couldn't put cats on this face, sorry.")
+            flash("Couldn't put cats on this face, sorry. This this might be because no faces could be found in the image.")
             return redirect(url_for('index'))
 
         cat_path = upload_to_s3(file_obj=cat_faced, folder=FINISHED_FOLDER)

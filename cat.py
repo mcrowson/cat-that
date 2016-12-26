@@ -36,13 +36,13 @@ class CatThat(object):
                 Attributes=['DEFAULT']
             )
         except ClientError as m:
-            print "got an error from AWS"
+            print "Got an error from AWS when making Rekognition request."
             print m.message
             return None
 
         if len(rek_results[u'FaceDetails']) == 0:
             # No faces in this one.
-            # TODO come up with better approach
+            print "Could not find any faces in this picture."
             return None
 
         with open('cat_list.json') as f:
@@ -53,6 +53,7 @@ class CatThat(object):
         # Add the cat face to each face in the input image
         cat_choices = [random.randint(0, len(cat_options) - 1) for i in rek_results[u'FaceDetails']]
         for face, i in zip(rek_results[u'FaceDetails'], cat_choices):
+            # Choose a cat for this face
             cat_choice = cat_options[i]
             cat_image = Image.open(cat_choice['image_path'])
 
@@ -79,7 +80,8 @@ class CatThat(object):
             # Expand the face box to accommodate the ears poking out due to rotation
             ear_pct_inc = float(cat_choice['ear_pct_inc'])  # the ears don't count towards the face
 
-            # Depending upon the rotation, we need to expand the face box  and rotated cat_image face to allow for the ears.
+            # Depending upon the rotation, we need to expand the face box and
+            # rotated cat_image face to allow for the ears.
             w, h = rolled_cat_face.size
             rotation_mod = cclock_wise_rotation % 90.0
             first_ext = rotation_mod / 90.0
