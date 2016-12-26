@@ -1,104 +1,22 @@
-<!DOCTYPE html>
-<html class="full" lang="en">
-<!-- Frontend Theme: https://github.com/BlackrockDigital/startbootstrap-the-big-picture -->
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="Matthew Crowson">
-
-    <title>Cat That - Improve Pictures by Adding Cats</title>
-
-    <!-- Bootstrap Core CSS -->
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
-
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-</head>
-
-<body>
-
-    <!-- Navigation -->
-    <nav class="navbar navbar-inverse navbar-fixed-bottom" role="navigation">
-        <div class="container">
-            <!-- Brand and toggle get grouped for better mobile display -->
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand"><span style="color: #ffffff;">Cat That</span></a>
-            </div>
-            <!-- Collect the nav links, forms, and other content for toggling -->
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                <ul class="nav navbar-nav">
-                    <li>
-                        <a href="https://github.com/mcrowson/cat-that">Source Code</a>
-                    </li>
-                    <li>
-                        <a href="#">Making Cat That</a>
-                    </li>
-                    <li>
-                        <a href="https://databeard.com">Contact</a>
-                    </li>
-                </ul>
-            </div>
-            <!-- /.navbar-collapse -->
+{% extends "base.html" %}
+{% block content %}
+<!-- Page Content -->
+<div class="container">
+    <div class="row">
+        <!-- Show the picture -->
+        <div class="col-lg-12 center-block result-display" style="background-image: url({{ data.url }});"></div>
         </div>
-        <!-- /.container -->
-    </nav>
-
-    <!-- Page Content -->
-    <div class="container">
-        <div class="row">
-            <!-- Show the picture -->
-            <div class="col-lg-12">
-                <img src="{{ data.url }}" style="max-width: 100%; max-height: 100%"/>
-            </div>
-        </div>
-        <!-- /.row -->
-
-        <div class="row">
-            <div class="col-lg-6">
-                <a href="{{ data.url }}" download="catthat.jpg" class="btn-default btn-lg pull-left">Download</a>
-            </div>
-            <div class="col-lg-6">
-                <a href="{{ url_for('index') }}" class="btn-default btn-lg pull-right">Cat Another</a>
-            </div>
-        </div>
-        <!-- /.row -->
     </div>
-    <!-- /.container -->
+    <!-- /.row -->
 
-    <!-- jQuery -->
-    <script
-      src="https://code.jquery.com/jquery-3.1.1.slim.min.js"
-      integrity="sha256-/SIrNqv8h6QGKDuNoLGA4iret+kyesCkHGzVUUV0shc="
-      crossorigin="anonymous"></script>
-    <!-- Bootstrap Core JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <div class="row">
+        <div class="col-sm-12">
+            <a href="{{ data.url }}" download="catthat.jpg" class="btn-default btn btn-block">Download</a>
+            <a href="{{ url_for('index') }}" class="btn-default btn btn-block">Cat Another</a>
+        </div>
+    </div>
+    <!-- /.row -->
 
-    <!-- Because Analytics -->
-    <script>
-      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-      ga('create', 'UA-88761595-1', 'auto');
-      ga('send', 'pageview');
-
-    </script>
-
-</body>
-
-</html>
+</div>
+<!-- /.container -->
+{% endblock content %}

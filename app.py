@@ -21,10 +21,6 @@ app.config['FLASKS3_URL_STYLE'] = 'path'
 app.config['FLASKS3_ACTIVE'] = False
 s3 = FlaskS3(app)
 
-#client_id = os.environ["SLACK_CLIENT_ID"]
-#client_secret = os.environ["SLACK_CLIENT_SECRET"]
-#oauth_scope = os.environ["SLACK_BOT_SCOPE"]
-
 
 def valid_image_file_odl(file_obj):
     res = imghdr.what('ignored.txt', h=file_obj.read())
@@ -44,7 +40,7 @@ def upload_to_s3(file_obj, folder):
     return s3_url
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET'])
 def index(event=None, context=None):
     return render_template('index.html')
 
@@ -59,7 +55,7 @@ def process(event=None, context=None):
             r = requests.get(picture_url, stream=True)
             if r.status_code != 200:
                 flash("We did not get 200 response code when downloading the image")
-                return url_for('index')
+                return redirect(url_for('index'))
 
             file_obj = StringIO(r.content)
             result = 'redirect'
@@ -68,19 +64,18 @@ def process(event=None, context=None):
             file_obj = request.files['file']
             if not valid_image_file(file_obj):
                 flash("This is not a valid image file")
-                return url_for('index')
+                return redirect(url_for('index'))
 
             result = 'json'
         else:
             flash("We did not get posted file or url in the POSt variables")
-            return url_for('index')
+            return redirect(url_for('index'))
 
         cat_that = CatThat()
-        smaller_file = cat_that.resize_input_image(file_obj=file_obj)
-        cat_faced = cat_that.add_cat_face(file_obj=smaller_file)
+        cat_faced = cat_that.add_cat_face(file_obj=file_obj)
         if not cat_faced:
             flash("couldn't put cats on this face, sorry.")
-            return url_for('index')
+            return redirect(url_for('index'))
 
         cat_path = upload_to_s3(file_obj=cat_faced, folder=FINISHED_FOLDER)
         print('Cat Image URL: {}'.format(cat_path))
@@ -89,55 +84,11 @@ def process(event=None, context=None):
             return render_template('finished.html', data={'url': cat_path})
         else:
             return jsonify({'success': True, 'url': cat_path})
-    r = request
+
     cat_path = request.args.get('url')
+    if not cat_path:
+        return redirect(url_for('index'))
     return render_template('finished.html', data={'url': cat_path})
-
-@app.route('/slack', methods=['POST', 'GET'])
-def slack_receiver(event=None, context=None):
-    sc = SlackClient()
-
-    sc.api_call(
-        "chat.postMessage",
-        channel="#python",
-        text="Hello from Python! :tada:"
-    )
-    return "Got here"
-
-
-@app.route("/slack/begin_auth", methods=["GET"])
-def pre_install(event=None, context=None):
-    return '''
-      <a href="https://slack.com/oauth/authorize?scope={0}&client_id={1}">
-          Add to Slack
-      </a>
-    '''.format(oauth_scope, client_id)
-
-
-@app.route("/slack/finish_auth", methods=["GET", "POST"])
-def post_install(event=None, context=None):
-
-    # Retrieve the auth code from the request params
-    auth_code = request.args['code']
-
-    # An empty string is a valid token for this request
-    sc = SlackClient("")
-
-    # Request the auth tokens from Slack
-    auth_response = sc.api_call(
-        "oauth.access",
-        client_id=client_id,
-        client_secret=client_secret,
-        code=auth_code
-    )
-    # Save the bot token to an environmental variable or to your data store
-    # for later use
-    os.environ["SLACK_USER_TOKEN"] = auth_response['user_access_token']
-    os.environ["SLACK_BOT_TOKEN"] = auth_response['bot']['bot_access_token']
-
-    # Don't forget to let the user know that auth has succeeded!
-    return "Auth complete!"
-
 
 if __name__ == "__main__":
     app.run(debug=True)

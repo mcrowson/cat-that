@@ -1,8 +1,9 @@
 from cStringIO import StringIO
-import boto3
-import json
-from PIL import Image
 import random
+import json
+
+from PIL import Image
+import boto3
 from botocore.exceptions import ClientError
 
 
@@ -18,15 +19,6 @@ class CatThat(object):
             res = 0 - roll
         return res
 
-    @staticmethod
-    def resize_input_image(file_obj):
-        """
-        Resizes the input file object to something more reasonable.
-        :param file_obj:
-        :return:
-        """
-        return file_obj
-
     def add_cat_face(self, file_obj):
         """
         Takes a file-like object and puts a cat_image on any faces it finds.
@@ -35,7 +27,7 @@ class CatThat(object):
         """
         rek = boto3.client('rekognition')
 
-        file_obj.seek(0)
+        #file_obj.seek(0)
         try:
             rek_results = rek.detect_faces(
                 Image={

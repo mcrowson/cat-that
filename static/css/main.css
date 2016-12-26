@@ -1,11 +1,7 @@
 html, body {
-    min-height: 100%;
-}
-
-body {
-	margin-top: 50px;
-	margin-bottom: 50px;
-	background: none;
+    max-height: 100%;
+    padding-bottom: 70px;
+    background-color: #5C6576;
 }
 
 h1 {
@@ -15,12 +11,21 @@ p {
     color: #FFFFFF;
 }
 
-.full {
-  background: url(https://s3.amazonaws.com/cats.databeard.com/bg.jpg) no-repeat center center fixed;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
+.content {
+    position: fixed;
+    height: calc(100% - 60px);
+    left: 50px;
+    right: 50px;
+}
+
+.result-display {
+    height: calc(100vh - 130px);
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: auto 95%;
+    background-repeat: no-repeat;
+    background-position: center center;
 }
 
 .dropzone {
@@ -28,12 +33,8 @@ p {
     border: none;
 }
 
-div.noshow {
+.noshow {
     display: none;
-}
-
-#top {
-    margin: 15px;
 }
 
 #loader {
