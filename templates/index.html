@@ -20,12 +20,6 @@
               {% endif %}
             {% endwith %}
             {% block body %}{% endblock %}
-
-            <p>If the image is already online, throw the url in here:</p>
-            <form method="post" action="/finished" id="url_form">
-                <input type="url" name="url">
-                <input type="submit" value="Cat That!" onclick="showLoader()">
-            </form>
             <br/>
             <p>We only retain images for three days. Make sure you download any images worth saving.</p>
 
@@ -38,6 +32,16 @@
         </div>
     </div>
     <!-- /.row -->
+
+    <div class="row">
+        <div class="col-md-6 col-sm-12">
+            <p>If the image is already online, throw the url in here:</p>
+            <form method="post" action="/finished" id="url_form">
+                <input type="url" name="url">
+                <input type="submit" value="Cat That!" class="btn btn-default" onclick="showLoader()">
+            </form>
+        </div>
+    </div>
 </div>
 <!-- /.container -->
 
@@ -46,6 +50,7 @@
         url: "{{ url_for('process') }}",
         maxFilesize: 2,
         maxFiles: 1,
+        clickable: "#clickable",
         previewsContainer: "#nothing",
         acceptedFiles: "image/*",
         success: function(file, response){
