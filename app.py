@@ -1,14 +1,14 @@
-from flask import Flask, request, redirect, render_template, send_file, url_for, flash, jsonify
-import boto3
 import uuid
 import imghdr
 import os
-from cat import CatThat
-import requests
-from slackclient import SlackClient
 from cStringIO import StringIO
-from flask_s3 import FlaskS3
 
+from flask import Flask, request, redirect, render_template, url_for, flash, jsonify
+from flask_s3 import FlaskS3
+import boto3
+import requests
+
+from cat import CatThat
 
 FINISHED_FOLDER = 'finished'
 S3_BUCKET = 'cats.databeard.com'
