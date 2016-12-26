@@ -18,7 +18,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY')
 app.config['FLASKS3_BUCKET_NAME'] = S3_BUCKET
 app.config['FLASKS3_URL_STYLE'] = 'path'
-app.config['FLASKS3_ACTIVE'] = False
+#app.config['FLASKS3_ACTIVE'] = False
 s3 = FlaskS3(app)
 
 
