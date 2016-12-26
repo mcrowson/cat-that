@@ -36,7 +36,7 @@ p {
     margin: 20px;
     width: 100px;
     height: 100px;
-    background: url(https://s3.amazonaws.com/cats.databeard.com/spinner.png) no-repeat;
+    background: url(https://s3.amazonaws.com/cats.databeard.com/static/images/cat_pictures/cat_face2.png) no-repeat;
     -webkit-animation-name: spin;
     -webkit-animation-duration: 4000ms;
     -webkit-animation-iteration-count: infinite;

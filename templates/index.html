@@ -22,7 +22,7 @@
             {% block body %}{% endblock %}
 
             <p>If the image is already online, throw the url in here:</p>
-            <form method="post" action="/finished">
+            <form method="post" action="/finished" id="url_form">
                 <input type="url" name="url">
                 <input type="submit" value="Cat That!" onclick="showLoader()">
             </form>
@@ -46,7 +46,6 @@
         url: "{{ url_for('process') }}",
         maxFilesize: 2,
         maxFiles: 1,
-        clickable: ".content",
         previewsContainer: "#nothing",
         acceptedFiles: "image/*",
         success: function(file, response){
