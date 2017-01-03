@@ -12,11 +12,11 @@ p {
 }
 
 .content {
-    position: fixed;
     height: calc(100% - 60px);
 }
 
 .result-display {
+    margin: 10px;
     height: calc(100vh - 130px);
     -webkit-background-size: cover;
     -moz-background-size: cover;

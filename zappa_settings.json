@@ -6,7 +6,6 @@
         "lets_encrypt_key": "s3://cat-that/supersecret.key",
         "lets_encrypt_expression": "rate(15 days)",
         "timeout_seconds": 120,
-        "use_precompiled_packages": true,
         "debug": false
     }
 }
